@@ -1,12 +1,13 @@
 from django.http.response import HttpResponse
 from django.shortcuts import render
 from rest_framework.views import APIView
-from rest_framework.response import Response
 
+from pykrx import stock as PK
 import FinanceDataReader as FDR
 import pandas as PD
 import urllib.parse as URLPARSE
 import json
+import datetime
 
 # Create your views here.
 class StockBaseInfoByFinanceDataReader(APIView):
@@ -45,6 +46,13 @@ class StockBaseInfoByCrawling(APIView):
 
 
     def GetStockBaseInfo(self, market):
+        if market == 'KOSPI':
+            market = 'stockMkt'
+        elif market == 'KOSDAQ':
+            market = 'kosdaqMkt'
+        else:
+            market = ''
+
         params = {'method': 'download', 'marketType': ''}
         params['marketType'] = market
 
@@ -59,6 +67,37 @@ class StockBaseInfoByCrawling(APIView):
 
         return stockBaseInfo
 
+class StockBaseInfoByPYKRX(APIView):
+    '''
+        PyKrx 모듈을 사용한 주식정보를 가져온다.
+        종목코드, 종목명
+    '''
+    TODAY = datetime.datetime.now().strftime('%Y%m%d')
+
+    def get(self, request, market):
+        stockBaseInfoByMarket = self.GetStockBaseInfo(market)
+
+        request.session['StockBaseInfo'] = stockBaseInfoByMarket.to_json(orient='records', force_ascii=False)
+
+        return HttpResponse(stockBaseInfoByMarket.to_json(orient='records', force_ascii=False))
+
+    def GetStockBaseInfo(self, market):
+        stockBaseInfo_stockName = []
+        stockBaseInfo_stockCode = PK.get_market_ticker_list(date=self.TODAY, market=market)
+
+        for stockCode in stockBaseInfo_stockCode:
+            stockName = PK.get_market_ticker_name(stockCode)
+            stockBaseInfo_stockName.append(stockName)
+        
+        df_attribute = {
+            '종목코드': stockBaseInfo_stockCode,
+            '종목명': stockBaseInfo_stockName
+        }
+
+        df = PD.DataFrame(df_attribute)
+        stockBaseInfo = df
+
+        return stockBaseInfo
 
 class StockBaseInfoByStockName(APIView):
     '''
