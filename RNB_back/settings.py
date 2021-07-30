@@ -54,6 +54,9 @@ INSTALLED_APPS = [
     'rest_framework',
 #Cross-Origin-Resource Sharing - Django 도메인 이외의 다른 도메인을 요청. (임시로 주석)
 #   'corsheaders',
+
+    'API',
+    'StockInfo',
 ]
 
 MIDDLEWARE = [
@@ -127,15 +130,15 @@ AUTH_PASSWORD_VALIDATORS = [
 # Internationalization
 # https://docs.djangoproject.com/en/3.2/topics/i18n/
 
-LANGUAGE_CODE = 'en-us'
+LANGUAGE_CODE = 'ko-kr'
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'Asia/Seoul'
 
 USE_I18N = True
 
 USE_L10N = True
 
-USE_TZ = True
+USE_TZ = False
 
 
 # Static files (CSS, JavaScript, Images)
