@@ -5,5 +5,9 @@ urlpatterns = [
     #path('<str:market>/', StockBaseInfoByFinanceDataReader.as_view()),
     #path('<str:market>/', StockBaseInfoByCrawling.as_view()),
     path('<str:market>/', StockBaseInfoByPYKRX.as_view()),
-    path('search/<str:stockName>/', StockBaseInfoByStockName.as_view()),
+
+    #path('searchdetailinfo/<str:stockCode>/', StockDetailPriceByFinanceDataReader.as_view()),
+    path('searchdetailinfo/<str:stockCode>/', StockDetailPriceByPYKRX.as_view()),
+
+    path('searchbaseinfo/<str:stockName>/', StockBaseInfoByStockName.as_view()),
 ]
