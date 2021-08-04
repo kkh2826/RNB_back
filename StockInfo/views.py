@@ -57,7 +57,7 @@ class StockBaseInfoByStockName(APIView):
     '''
 
     def get(self, request, stockName):
-        stockAllInfo = request.session.get('StockBasesInfo')
+        stockAllInfo = request.session.get('StockBaseInfo')
         stockInfo = GetStockBaseInfoByStockName(stockAllInfo, stockName)
 
         return HttpResponse(stockInfo)

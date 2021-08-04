@@ -10,6 +10,7 @@ from dateutil.relativedelta import relativedelta
 '''
     FinanceDataReader 모듈을 사용한 주식정보를 가져온다.
     종목코드(Symbol), 시장종류(Market), 종목명(Name)
+    market = (KRX, KOSPI, KOSDAQ)
 '''
 def GetStockBaseInfoByFinanceDataReader(market):
     stockBaseInfo = FDR.StockListing(market)
@@ -77,6 +78,7 @@ def GetStockBaseInfoByCrawling(market):
 '''
     PyKrx 모듈을 사용한 주식정보를 가져온다.
     종목코드, 종목명
+    market = (KRX, KOSPI, KOSDAQ)
 '''
 def GetStockBaseInfoByPYKRX(market):
     TODAY = datetime.datetime.now().strftime('%Y%m%d')
