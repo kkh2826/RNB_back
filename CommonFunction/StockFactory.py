@@ -15,7 +15,7 @@ from dateutil.relativedelta import relativedelta
 def GetStockBaseInfoByFinanceDataReader(market):
     stockBaseInfo = FDR.StockListing(market)
     stockBaseInfo = stockBaseInfo[['Symbol', 'Market', 'Name']]
-    stockBaseInfo = stockBaseInfo.rename(columns={'Symbol': 'StockCode', 'Market': 'Market', 'Name': 'StockName'})
+    stockBaseInfo = stockBaseInfo.rename(columns={'Symbol': 'stockCode', 'Market': 'market', 'Name': 'stockName'})
 
     return stockBaseInfo
 
