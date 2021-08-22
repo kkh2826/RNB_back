@@ -65,6 +65,7 @@ INSTALLED_APPS = [
     'API',
     'StockInfo',
     'Account',
+    'UserStockInfo',
 ]
 
 MIDDLEWARE = [
@@ -142,10 +143,6 @@ LANGUAGE_CODE = 'ko-kr'
 
 TIME_ZONE = 'Asia/Seoul'
 
-USE_I18N = True
-
-USE_L10N = True
-
 USE_TZ = False
 
 
@@ -176,8 +173,8 @@ JWT_AUTH = {
     'JWT_SECRET_KEY': SECRET_KEY,
     'JWT_ALGORITHM': 'HS256',
     'JWT_ALLOW_REFRESH': True,
-    'JWT_EXPIRATION_DELTA': datetime.timedelta(seconds=30),
-    'JWT_REFRESH_EXPIRATION_DELTA': datetime.timedelta(seconds=60),
+    'JWT_EXPIRATION_DELTA': datetime.timedelta(days=1),
+    'JWT_REFRESH_EXPIRATION_DELTA': datetime.timedelta(days=2),
     'JWT_AUTH_HEADER_PREFIX': 'JWT',
 
     'JWT_ENCODE_HANDLER': 'rest_framework_jwt.utils.jwt_encode_handler',
