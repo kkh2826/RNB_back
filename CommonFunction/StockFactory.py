@@ -30,18 +30,21 @@ def GetStockDetailPriceByFinanceDataReader(stockCode):
     TODAY_BEFORE_ONEMONTH = TODAY - relativedelta(months=1)
     TODAY_BEFORE_THREEMONTH = TODAY - relativedelta(months=3)
     TODAY_BEFORE_SIXMONTH = TODAY - relativedelta(months=6)
+    TODAY_BEFORE_TENYEARS = TODAY - relativedelta(years=10)
 
     stockDetailPrice_ONEYEAR = FDR.DataReader(stockCode, start=TODAY_BEFORE_ONEYEAR).reset_index()
     stockDetailPrice_ONEMONTH = FDR.DataReader(stockCode, start=TODAY_BEFORE_ONEMONTH).reset_index()
     stockDetailPrice_THREEMONTH = FDR.DataReader(stockCode, start=TODAY_BEFORE_THREEMONTH).reset_index()
     stockDetailPrice_SIXMONTH = FDR.DataReader(stockCode, start=TODAY_BEFORE_SIXMONTH).reset_index()
+    stockDetailPrice_TENYEARS = FDR.DataReader(stockCode, start=TODAY_BEFORE_TENYEARS).reset_index()
 
     stockDetailPrice_ONEYEAR['Date'] = stockDetailPrice_ONEYEAR['Date'].apply(str)
     stockDetailPrice_ONEMONTH['Date'] = stockDetailPrice_ONEMONTH['Date'].apply(str)
     stockDetailPrice_THREEMONTH['Date'] = stockDetailPrice_THREEMONTH['Date'].apply(str)
     stockDetailPrice_SIXMONTH['Date'] = stockDetailPrice_SIXMONTH['Date'].apply(str)
+    stockDetailPrice_TENYEARS['Date'] = stockDetailPrice_TENYEARS['Date'].apply(str)
 
-    return stockDetailPrice_ONEYEAR, stockDetailPrice_ONEMONTH, stockDetailPrice_THREEMONTH, stockDetailPrice_SIXMONTH
+    return stockDetailPrice_ONEYEAR, stockDetailPrice_ONEMONTH, stockDetailPrice_THREEMONTH, stockDetailPrice_SIXMONTH, stockDetailPrice_TENYEARS
 
 '''
     https://kind.krx.co.kr/corpgeneral/corpList.do?method=loadInitPage에 공시되어 있는 Excel 파일을 통해 주식정보를 가져온다.
@@ -110,6 +113,7 @@ def GetStockDetailPriceByPYKRX(stockCode):
     TODAY_BEFORE_ONEMONTH = datetime.datetime.strftime(TODAY - relativedelta(months=1), '%Y%m%d')
     TODAY_BEFORE_THREEMONTH = datetime.datetime.strftime(TODAY - relativedelta(months=3), '%Y%m%d')
     TODAY_BEFORE_SIXMONTH = datetime.datetime.strftime(TODAY - relativedelta(months=6), '%Y%m%d')
+    TODAY_BEFORE_TENYEARS = datetime.datetime.strftime(TODAY - relativedelta(years=10), '%Y%m%d')
 
     TODAY = datetime.datetime.now().strftime('%Y%m%d')
     
@@ -117,13 +121,15 @@ def GetStockDetailPriceByPYKRX(stockCode):
     stockDetailPrice_ONEMONTH = PK.get_market_ohlcv_by_date(fromdate=TODAY_BEFORE_ONEMONTH, todate=TODAY, ticker=stockCode).reset_index()
     stockDetailPrice_THREEMONTH = PK.get_market_ohlcv_by_date(fromdate=TODAY_BEFORE_THREEMONTH, todate=TODAY, ticker=stockCode).reset_index()
     stockDetailPrice_SIXMONTH = PK.get_market_ohlcv_by_date(fromdate=TODAY_BEFORE_SIXMONTH, todate=TODAY, ticker=stockCode).reset_index()
+    stockDetailPrice_TENYEARS = PK.get_market_ohlcv_by_date(fromdate=TODAY_BEFORE_TENYEARS, todate=TODAY, ticker=stockCode).reset_index()
 
     stockDetailPrice_ONEYEAR['날짜'] = stockDetailPrice_ONEYEAR['날짜'].apply(str)
     stockDetailPrice_ONEMONTH['날짜'] = stockDetailPrice_ONEMONTH['날짜'].apply(str)
     stockDetailPrice_THREEMONTH['날짜'] = stockDetailPrice_THREEMONTH['날짜'].apply(str)
     stockDetailPrice_SIXMONTH['날짜'] = stockDetailPrice_SIXMONTH['날짜'].apply(str)
+    stockDetailPrice_TENYEARS['날짜'] = stockDetailPrice_TENYEARS['날짜'].apply(str)
 
-    return stockDetailPrice_ONEYEAR, stockDetailPrice_ONEMONTH, stockDetailPrice_THREEMONTH, stockDetailPrice_SIXMONTH
+    return stockDetailPrice_ONEYEAR, stockDetailPrice_ONEMONTH, stockDetailPrice_THREEMONTH, stockDetailPrice_SIXMONTH, stockDetailPrice_TENYEARS
 
 
 '''

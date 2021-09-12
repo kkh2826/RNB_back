@@ -1,6 +1,8 @@
-from django.http.response import HttpResponse
 from django.shortcuts import render
+from pykrx import stock
 from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework.renderers import JSONRenderer
 import json
 
 from CommonFunction.StockFactory import *
@@ -13,12 +15,13 @@ class StockBaseInfoByFinanceDataReader(APIView):
     '''
 
     def get(self, request, market):
-        #stockBaseInfoByMarket = self.GetStockBaseInfo(market)
         stockBaseInfoByMarket = GetStockBaseInfoByFinanceDataReader(market)
 
         request.session['StockBaseInfo'] = stockBaseInfoByMarket.to_json(orient='records', force_ascii=False)
 
-        return HttpResponse(stockBaseInfoByMarket.to_json(orient='records', force_ascii=False))
+        stockBaseInfoByMarket = stockBaseInfoByMarket.to_json(orient='records', force_ascii=False)
+
+        return Response(stockBaseInfoByMarket)
 
 
 class StockBaseInfoByCrawling(APIView):
@@ -28,12 +31,13 @@ class StockBaseInfoByCrawling(APIView):
     '''
 
     def get(self, request, market):
-        #stockBaseInfoByMarket = self.GetStockBaseInfo(market)
         stockBaseInfoByMarket = GetStockBaseInfoByCrawling(market)
 
         request.session['StockBaseInfo'] = stockBaseInfoByMarket.to_json(orient='records', force_ascii=False)
 
-        return HttpResponse(stockBaseInfoByMarket.to_json(orient='records', force_ascii=False))
+        stockBaseInfoByMarket = stockBaseInfoByMarket.to_json(orient='records', force_ascii=False)
+
+        return Response(stockBaseInfoByMarket)
 
 
 class StockBaseInfoByPYKRX(APIView):
@@ -43,13 +47,12 @@ class StockBaseInfoByPYKRX(APIView):
     '''
 
     def get(self, request, market):
-        #stockBaseInfoByMarket = self.GetStockBaseInfo(market)
         stockBaseInfoByMarket = GetStockBaseInfoByPYKRX(market)
+        stockBaseInfoByMarket = stockBaseInfoByMarket.to_json(orient='records', force_ascii=False)
 
-        request.session['StockBaseInfo'] = stockBaseInfoByMarket.to_json(orient='records', force_ascii=False)
+        request.session['StockBaseInfo'] = stockBaseInfoByMarket
 
-        return HttpResponse(stockBaseInfoByMarket.to_json(orient='records', force_ascii=False))
-
+        return Response(stockBaseInfoByMarket)
 
 class StockBaseInfoByStockName(APIView):
     '''
@@ -58,9 +61,10 @@ class StockBaseInfoByStockName(APIView):
 
     def get(self, request, stockName):
         stockAllInfo = request.session.get('StockBaseInfo')
+
         stockInfo = GetStockBaseInfoByStockName(stockAllInfo, stockName)
 
-        return HttpResponse(stockInfo)
+        return Response(stockInfo)
 
 
 class StockDetailPriceByFinanceDataReader(APIView):
@@ -69,16 +73,19 @@ class StockDetailPriceByFinanceDataReader(APIView):
     '''
 
     def get(self, request, stockCode):
-        stockDetailPrice_ONEYEAR, stockDetailPrice_ONEMONTH, stockDetailPrice_THREEMONTH, stockDetailPrice_SIXMONTH = GetStockDetailPriceByFinanceDataReader(stockCode)
+        stockDetailPrice_ONEYEAR, stockDetailPrice_ONEMONTH, stockDetailPrice_THREEMONTH, stockDetailPrice_SIXMONTH, stockDetailPrice_TENYEARS = GetStockDetailPriceByFinanceDataReader(stockCode)
 
         stockDetailPrice = {
             'ONEYEAR': stockDetailPrice_ONEYEAR.to_dict(orient="records"),
             'ONEMONTH': stockDetailPrice_ONEMONTH.to_dict(orient="records"),
             'THREEMONTH': stockDetailPrice_THREEMONTH.to_dict(orient="records"),
-            'SIXMONTH': stockDetailPrice_SIXMONTH.to_dict(orient="records")
+            'SIXMONTH': stockDetailPrice_SIXMONTH.to_dict(orient="records"),
+            'TENYEARS': stockDetailPrice_TENYEARS.to_dict(orient="records")
         }
 
-        return HttpResponse(json.dumps(stockDetailPrice, ensure_ascii=False))
+        stockDetailPrice = json.dumps(stockDetailPrice, ensure_ascii=False)
+
+        return Response(stockDetailPrice)
 
 
 class StockDetailPriceByPYKRX(APIView):
@@ -87,13 +94,16 @@ class StockDetailPriceByPYKRX(APIView):
     '''
 
     def get(self, request, stockCode):
-        stockDetailPrice_ONEYEAR, stockDetailPrice_ONEMONTH, stockDetailPrice_THREEMONTH, stockDetailPrice_SIXMONTH = GetStockDetailPriceByPYKRX(stockCode)
+        stockDetailPrice_ONEYEAR, stockDetailPrice_ONEMONTH, stockDetailPrice_THREEMONTH, stockDetailPrice_SIXMONTH, stockDetailPrice_TENYEARS = GetStockDetailPriceByPYKRX(stockCode)
 
         stockDetailPrice = {
             'ONEYEAR': stockDetailPrice_ONEYEAR.to_dict(orient="records"),
             'ONEMONTH': stockDetailPrice_ONEMONTH.to_dict(orient="records"),
             'THREEMONTH': stockDetailPrice_THREEMONTH.to_dict(orient="records"),
-            'SIXMONTH': stockDetailPrice_SIXMONTH.to_dict(orient="records")
+            'SIXMONTH': stockDetailPrice_SIXMONTH.to_dict(orient="records"),
+            'TENYEARS': stockDetailPrice_TENYEARS.to_dict(orient="records")
         }
 
-        return HttpResponse(json.dumps(stockDetailPrice, ensure_ascii=False))
+        stockDetailPrice = json.dumps(stockDetailPrice, ensure_ascii=False)
+
+        return Response(stockDetailPrice)

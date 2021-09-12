@@ -53,7 +53,7 @@ INSTALLED_APPS = [
 #Django Rest Framework를 사용.
     'rest_framework',
 #Cross-Origin-Resource Sharing - Django 도메인 이외의 다른 도메인을 요청. (임시로 주석)
-#   'corsheaders',
+    'corsheaders',
 
     'API',
     'StockInfo',
@@ -68,13 +68,13 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 #CORS를 사용하기 위한 Middleward 설정. (임시로 주석)
-#   'corsheaders.middleware.CorsMiddelware'
+    'corsheaders.middleware.CorsMiddleware'
 ]
 
 #CORS를 통해 연결할 도메인 추가. (임시로 주석)
-# CORS_ORIGIN_WHITELIST = [
-#     'http://localhost:3000'
-# ]
+CORS_ORIGIN_WHITELIST = [
+    'http://localhost:3000'
+]
 
 ROOT_URLCONF = 'RNB_back.urls'
 
