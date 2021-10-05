@@ -6,7 +6,6 @@ JWT_PAYLOAD_HANDLER = api_settings.JWT_PAYLOAD_HANDLER
 JWT_ENCODE_HANDLER = api_settings.JWT_ENCODE_HANDLER
 
 '''
-    CASE 1
     User Model 직렬화
 '''
 class UserSerializer(serializers.ModelSerializer):
