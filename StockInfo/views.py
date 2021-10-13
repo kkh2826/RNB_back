@@ -5,6 +5,8 @@ from rest_framework.response import Response
 from rest_framework.renderers import JSONRenderer
 import json
 
+from rest_framework.permissions import AllowAny, IsAuthenticated
+
 from CommonFunction.StockFactory import *
 
 # Create your views here.
@@ -29,6 +31,7 @@ class StockBaseInfoByCrawling(APIView):
         https://kind.krx.co.kr/corpgeneral/corpList.do?method=loadInitPage에 공시되어 있는 Excel 파일을 통해 주식정보를 가져온다.
         종목코드, 종목명
     '''
+    permission_classes = [AllowAny]
 
     def get(self, request, market):
         stockBaseInfoByMarket = GetStockBaseInfoByCrawling(market)
@@ -92,6 +95,7 @@ class StockDetailPriceByPYKRX(APIView):
     '''
         종목코드에 맞는 가격정보를 가져온다. (PyKrx)
     '''
+    permission_classes = [AllowAny]
 
     def get(self, request, stockCode):
         stockDetailPrice_ONEYEAR, stockDetailPrice_ONEMONTH, stockDetailPrice_THREEMONTH, stockDetailPrice_SIXMONTH, stockDetailPrice_TENYEARS = GetStockDetailPriceByPYKRX(stockCode)
