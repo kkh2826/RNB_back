@@ -15,13 +15,18 @@ from .serializers import UserSerializer
 JWT_PAYLOAD_HANDLER = api_settings.JWT_PAYLOAD_HANDLER
 JWT_ENCODE_HANDLER = api_settings.JWT_ENCODE_HANDLER
 
-result = {
-            'user': None,
-            'token': '',
-            'success': True,
-            'message': ''
-        }
+'''
+    결과값 초기화 함수
+'''
+def InitResult() :
+    result = {
+        'user': None,
+        'token': '',
+        'success': True,
+        'message': ''
+    }
 
+    return result
 
 '''
     회원가입
@@ -31,6 +36,8 @@ class RegisterUserAccount(APIView):
     permission_classes = [AllowAny]
 
     def post(self, request):
+
+        result = InitResult()
 
         username = request.data['username']
         email = request.data['email']
@@ -83,6 +90,7 @@ class LoginUserAccount(APIView):
 
     def post(self, request):
 
+        result = InitResult()
         token = ''
 
         username = request.data['username']
