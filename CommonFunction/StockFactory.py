@@ -3,9 +3,14 @@ import FinanceDataReader as FDR
 import pandas as PD
 import urllib.parse as URLPARSE
 import datetime
+from dateutil.relativedelta import relativedelta
 import json
 
-from dateutil.relativedelta import relativedelta
+# For Crawling
+from fake_useragent import UserAgent
+import requests
+from bs4 import BeautifulSoup
+
 
 '''
     FinanceDataReader 모듈을 사용한 주식정보를 가져온다.
@@ -51,31 +56,59 @@ def GetStockDetailPriceByFinanceDataReader(stockCode):
     종목코드, 종목명  
 '''
 def GetStockBaseInfoByCrawling(market):
-    if market == 'KOSPI':
-        market = 'stockMkt'
-    elif market == 'KOSDAQ':
-        market = 'kosdaqMkt'
-    else:
-        market = ''
+    # if market == 'KOSPI':
+    #     market = 'stockMkt'
+    # elif market == 'KOSDAQ':
+    #     market = 'kosdaqMkt'
+    # else:
+    #     market = ''
 
-    DOWNLOAD_URL = 'kind.krx.co.kr/corpgeneral/corpList.do'
-    params = {}
+    # DOWNLOAD_URL = 'kind.krx.co.kr/corpgeneral/corpList.do'
 
-    params = {'method': 'download', 'marketType': ''}
-    params['marketType'] = market
+    # params = {'method': 'download', 'marketType': ''}
+    # params['marketType'] = market
+
+    # str_params = URLPARSE.urlencode(params)
+    # url = URLPARSE.urlunsplit(['http', DOWNLOAD_URL, '', str_params, ''])
+
+    # df = PD.read_html(url, header=0)[0]
+
+    # print(df)
+
+    # df.종목코드 = df.종목코드.map('{:06d}'.format)
+    # df = df[['회사명', '종목코드']]
+    # df = df.rename(columns={'회사명': 'stockName', '종목코드': 'stockCode'})
+
+    # stockBaseInfo = df
+
+    OTP_URL = 'http://data.krx.co.kr/comm/fileDn/GenerateOTP/generate.cmd'
+
+    params = {
+        'mktId': 'ALL',
+        'share': '1',
+        'csvxls_isNo': 'false',
+        'name': 'fileDown',
+        'url': 'dbms/MDC/STAT/standard/MDCSTAT01901'
+    }
+
+    otp_response = requests.post(url=OTP_URL, data=params, headers={'User-agent': 'Mozilla/5.0'})
+
+    DOWNLOAD_URL = 'data.krx.co.kr/comm/fileDn/download_excel/download.cmd'
+
+    params = {
+        'code': otp_response.content
+    }
 
     str_params = URLPARSE.urlencode(params)
     url = URLPARSE.urlunsplit(['http', DOWNLOAD_URL, '', str_params, ''])
 
-    df = PD.read_html(url, header=0)[0]
-    df.종목코드 = df.종목코드.map('{:06d}'.format)
-    df = df[['회사명', '종목코드']]
-    df = df.rename(columns={'회사명': 'stockName', '종목코드': 'stockCode'})
+    df = PD.read_excel(url, header=0)
+    df = df[['단축코드', '한글 종목약명', '시장구분']]
+    df = df.rename(columns={'단축코드': 'stockCode', '한글 종목약명': 'stockName', '시장구분': 'market'})
 
     stockBaseInfo = df
 
     return stockBaseInfo
-
 
 
 '''
@@ -115,7 +148,7 @@ def GetStockDetailPriceByPYKRX(stockCode):
     TODAY_BEFORE_SIXMONTH = datetime.datetime.strftime(TODAY - relativedelta(months=6), '%Y%m%d')
     TODAY_BEFORE_TENYEARS = datetime.datetime.strftime(TODAY - relativedelta(years=10), '%Y%m%d')
 
-    TODAY = datetime.datetime.now().strftime('%Y%m%d')
+    TODAY = datetime.datetime.strftime(datetime.datetime.now().date() - relativedelta(days=1), '%Y%m%d')
     
     stockDetailPrice_ONEYEAR = PK.get_market_ohlcv_by_date(fromdate=TODAY_BEFORE_ONEYEAR, todate=TODAY, ticker=stockCode).reset_index()
     stockDetailPrice_ONEMONTH = PK.get_market_ohlcv_by_date(fromdate=TODAY_BEFORE_ONEMONTH, todate=TODAY, ticker=stockCode).reset_index()
@@ -133,13 +166,30 @@ def GetStockDetailPriceByPYKRX(stockCode):
 
 
 '''
-    Session 값으로 저장된 모든 종목에 대해서 종목명이 포함된 정보를 가져온다.
+    특정 종목에 대한 전영업일 종가, 현재가격을 가져온다. (NAVER 증시 기준)
 '''
-def GetStockBaseInfoByStockName(stockAllInfo, stockName):
-    stockAllInfo = json.loads(stockAllInfo)
+def GetStockPreviosCurrentPrice(stockCode):
 
-    stockInfo = list(filter(lambda x: stockName.upper() in x['stockName'].upper(), stockAllInfo))
+    # 전영업일을 통해 전영업일 종가 구하기 (현재일 기준)
+    TODAY = datetime.datetime.strftime(datetime.datetime.now().date() - relativedelta(days=1), '%Y%m%d')
+    PREVMONTH = datetime.datetime.strftime(datetime.datetime.now().date() - relativedelta(weeks=2), '%Y%m%d')
 
-    stockInfo = json.dumps(stockInfo, ensure_ascii=False)
+    previousInfo = PK.get_market_ohlcv_by_date(fromdate=PREVMONTH, todate=TODAY, ticker=stockCode).reset_index()
+    previousInfo = previousInfo.tail(1)
+    previousPrice = previousInfo['종가'].iloc[-1]
+    previousPrice = "{:,}".format(previousPrice)
 
-    return stockInfo
+    # 현재 가격 구하기
+    url = f"http://finance.naver.com/item/main.nhn?code={stockCode}"
+
+    ua = UserAgent()
+    headers = { 'User-agent': ua.ie }
+
+    response = requests.get(url, headers=headers)
+    content = BeautifulSoup(response.text, 'lxml')
+
+    info = content.select_one('p.no_today')
+    currentPrice = info.select_one('span.blind')
+
+
+    return previousPrice, currentPrice.text

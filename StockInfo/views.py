@@ -1,8 +1,6 @@
-from django.shortcuts import render
 from pykrx import stock
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from rest_framework.renderers import JSONRenderer
 import json
 
 from rest_framework.permissions import AllowAny, IsAuthenticated
@@ -15,11 +13,10 @@ class StockBaseInfoByFinanceDataReader(APIView):
         FinanceDataReader 모듈을 사용한 주식정보를 가져온다.
         종목코드(Symbol), 시장종류(Market), 종목명(Name)
     '''
+    permission_classes = [AllowAny]
 
     def get(self, request, market):
         stockBaseInfoByMarket = GetStockBaseInfoByFinanceDataReader(market)
-
-        request.session['StockBaseInfo'] = stockBaseInfoByMarket.to_json(orient='records', force_ascii=False)
 
         stockBaseInfoByMarket = stockBaseInfoByMarket.to_json(orient='records', force_ascii=False)
 
@@ -36,8 +33,6 @@ class StockBaseInfoByCrawling(APIView):
     def get(self, request, market):
         stockBaseInfoByMarket = GetStockBaseInfoByCrawling(market)
 
-        request.session['StockBaseInfo'] = stockBaseInfoByMarket.to_json(orient='records', force_ascii=False)
-
         stockBaseInfoByMarket = stockBaseInfoByMarket.to_json(orient='records', force_ascii=False)
 
         return Response(stockBaseInfoByMarket)
@@ -49,25 +44,13 @@ class StockBaseInfoByPYKRX(APIView):
         종목코드, 종목명
     '''
 
+    permission_classes = [AllowAny]
+
     def get(self, request, market):
         stockBaseInfoByMarket = GetStockBaseInfoByPYKRX(market)
         stockBaseInfoByMarket = stockBaseInfoByMarket.to_json(orient='records', force_ascii=False)
 
-        request.session['StockBaseInfo'] = stockBaseInfoByMarket
-
         return Response(stockBaseInfoByMarket)
-
-class StockBaseInfoByStockName(APIView):
-    '''
-        사용자가 입력한 회사명 문자열이 포함된 주식정보를 가져온다.
-    '''
-
-    def get(self, request, stockName):
-        stockAllInfo = request.session.get('StockBaseInfo')
-
-        stockInfo = GetStockBaseInfoByStockName(stockAllInfo, stockName)
-
-        return Response(stockInfo)
 
 
 class StockDetailPriceByFinanceDataReader(APIView):
@@ -111,3 +94,29 @@ class StockDetailPriceByPYKRX(APIView):
         stockDetailPrice = json.dumps(stockDetailPrice, ensure_ascii=False)
 
         return Response(stockDetailPrice)
+
+
+class StockBasicPriceInfo(APIView):
+
+    permission_classes = [AllowAny]
+
+    def get(self, request, stockCode):
+
+        str_previousPrice, str_currentPrice = GetStockPreviosCurrentPrice(stockCode)
+
+        previousPrice = int(str_previousPrice.replace(',', ''))
+        currentPrice = int(str_currentPrice.replace(',', ''))
+
+        updownRate = (float)("{:.2f}".format((currentPrice - previousPrice) * 100 / currentPrice))
+        positiveFlag = 1 if updownRate >= 0 else 0
+        
+        stockBasicPrice = {
+            'PREVIOS': str_previousPrice,
+            'CURRENT': str_currentPrice,
+            'UPDOWNRATE': updownRate,
+            'POSITIVEFLAG': positiveFlag
+        }
+
+        stockBasicPrice = json.dumps(stockBasicPrice, ensure_ascii=False)
+
+        return Response(stockBasicPrice)

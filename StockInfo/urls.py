@@ -9,5 +9,5 @@ urlpatterns = [
     #path('searchdetailinfo/<str:stockCode>/', StockDetailPriceByFinanceDataReader.as_view()),
     path('searchdetailinfo/<str:stockCode>/', StockDetailPriceByPYKRX.as_view()),
 
-    path('searchbaseinfo/<str:stockName>/', StockBaseInfoByStockName.as_view()),
+    path('searchcurrentprice/<str:stockCode>/', StockBasicPriceInfo.as_view()),
 ]
