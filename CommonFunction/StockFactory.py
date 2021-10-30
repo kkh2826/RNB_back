@@ -171,25 +171,31 @@ def GetStockDetailPriceByPYKRX(stockCode):
 def GetStockPreviosCurrentPrice(stockCode):
 
     # 전영업일을 통해 전영업일 종가 구하기 (현재일 기준)
-    TODAY = datetime.datetime.strftime(datetime.datetime.now().date() - relativedelta(days=1), '%Y%m%d')
+    TODAY = datetime.datetime.strftime(datetime.datetime.now().date(), '%Y%m%d')
     PREVMONTH = datetime.datetime.strftime(datetime.datetime.now().date() - relativedelta(weeks=2), '%Y%m%d')
 
     previousInfo = PK.get_market_ohlcv_by_date(fromdate=PREVMONTH, todate=TODAY, ticker=stockCode).reset_index()
-    previousInfo = previousInfo.tail(1)
-    previousPrice = previousInfo['종가'].iloc[-1]
+
+    previousInfo = previousInfo.tail(2)
+
+    previousPrice = previousInfo['종가'].iloc[0]
+    currentPrice = previousInfo['종가'].iloc[-1]
+
+    currentPrice = "{:,}".format(currentPrice)
     previousPrice = "{:,}".format(previousPrice)
 
-    # 현재 가격 구하기
-    url = f"http://finance.naver.com/item/main.nhn?code={stockCode}"
 
-    ua = UserAgent()
-    headers = { 'User-agent': ua.ie }
+    # 현재 가격 구하기 (네이버 증시기준으로 Crawling)
+    # url = f"http://finance.naver.com/item/main.nhn?code={stockCode}"
 
-    response = requests.get(url, headers=headers)
-    content = BeautifulSoup(response.text, 'lxml')
+    # ua = UserAgent()
+    # headers = { 'User-agent': ua.ie }
 
-    info = content.select_one('p.no_today')
-    currentPrice = info.select_one('span.blind')
+    # response = requests.get(url, headers=headers)
+    # content = BeautifulSoup(response.text, 'lxml')
+
+    # info = content.select_one('p.no_today')
+    # currentPrice = info.select_one('span.blind')
 
 
-    return previousPrice, currentPrice.text
+    return previousPrice, currentPrice

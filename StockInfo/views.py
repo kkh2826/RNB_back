@@ -108,7 +108,7 @@ class StockBasicPriceInfo(APIView):
         currentPrice = int(str_currentPrice.replace(',', ''))
 
         updownRate = (float)("{:.2f}".format((currentPrice - previousPrice) * 100 / currentPrice))
-        positiveFlag = 1 if updownRate >= 0 else 0
+        positiveFlag = 1 if currentPrice-previousPrice >= 0 else 0
         
         stockBasicPrice = {
             'PREVIOS': str_previousPrice,
