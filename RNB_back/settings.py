@@ -68,6 +68,7 @@ INSTALLED_APPS = [
     'API',
     'StockInfo',
     'Account',
+    'UserStockInfo',
 ]
 
 MIDDLEWARE = [
